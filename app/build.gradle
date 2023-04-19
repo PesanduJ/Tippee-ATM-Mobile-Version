@@ -44,4 +44,5 @@ dependencies {
 
     implementation 'com.quickbirdstudios:opencv-contrib:4.5.3.0'
     implementation 'androidx.biometric:biometric-ktx:1.2.0-alpha05'
+    implementation "androidx.sqlite:sqlite-ktx:2.2.0"
 }

@@ -1,5 +1,6 @@
 package com.example.tippee_atm_mobile_version
 
+import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
@@ -8,6 +9,7 @@ import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
 import android.util.Log
 import android.widget.Button
+import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.biometric.BiometricManager
@@ -23,14 +25,25 @@ import org.opencv.core.Scalar
 import org.opencv.core.Size
 import org.opencv.imgcodecs.Imgcodecs
 import org.opencv.imgproc.Imgproc
+import java.io.ByteArrayOutputStream
+import java.io.ObjectOutputStream
 import javax.crypto.Cipher
 import javax.crypto.KeyGenerator
+
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var fingerprintButton: Button
     private lateinit var resultText: TextView
     private lateinit var fingerprintImageView: ImageView
+    private lateinit var minutiaeText: TextView
+
+    private lateinit var registerfingerprintButton: Button
+    private lateinit var name: EditText
+
+    private lateinit var nextpage: Button
+
+    var scannedMinutiaeValue = mutableListOf<Point>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,6 +54,11 @@ class MainActivity : AppCompatActivity() {
         fingerprintButton = findViewById(R.id.fingerprint_button)
         resultText = findViewById(R.id.result_text_view)
         fingerprintImageView = findViewById(R.id.fingerprint_image_view)
+        minutiaeText = findViewById(R.id.minutiae_text_view)
+        registerfingerprintButton = findViewById(R.id.register_fingerprint_button)
+        name = findViewById(R.id.nameregister)
+        nextpage = findViewById(R.id.nextpage)
+
 
 
         fingerprintButton.setOnClickListener {
@@ -67,6 +85,27 @@ class MainActivity : AppCompatActivity() {
                     resultText.text="The user hasn't associated any biometric credentials with their account"
                 }
             }
+        }
+
+
+        registerfingerprintButton.setOnClickListener {
+
+            val dbHelper = MinutiaeDatabaseHelper(this)
+            dbHelper.insertMinutiaeData(name.text.toString(),minutiaeText.text.toString())
+        }
+
+        nextpage.setOnClickListener {
+
+            val serializablePoints = scannedMinutiaeValue.map { SerializablePoint(it.x, it.y) }
+
+            val byteArrayOutputStream = ByteArrayOutputStream()
+            val objectOutputStream = ObjectOutputStream(byteArrayOutputStream)
+            objectOutputStream.writeObject(serializablePoints)
+            val byteArray = byteArrayOutputStream.toByteArray()
+
+            val intent = Intent(this, ScanActivity::class.java)
+            intent.putExtra("pointsByteArray", byteArray)
+            startActivity(intent)
         }
     }
 
@@ -114,6 +153,8 @@ class MainActivity : AppCompatActivity() {
                         Utils.matToBitmap(segmentedMat, segmentedBitmap)
 
                         val extractedMinutiae = extractMinutiae(segmentedMat)
+                        scannedMinutiaeValue.addAll(extractedMinutiae)
+                        minutiaeText.text = extractedMinutiae.toString()
 
                         fingerprintImageView.setImageBitmap(segmentedBitmap)
                     }
@@ -156,12 +197,16 @@ class MainActivity : AppCompatActivity() {
         val inputMat = Mat(bitmap.height, bitmap.width, CvType.CV_8UC1)
         Utils.bitmapToMat(bitmap, inputMat)
 
+        // Convert image to grayscale
+        val grayMat = Mat()
+        Imgproc.cvtColor(inputMat, grayMat, Imgproc.COLOR_BGR2GRAY)
+
         // Apply histogram equalization to enhance contrast
-        Imgproc.equalizeHist(inputMat, inputMat)
+        Imgproc.equalizeHist(grayMat, grayMat)
 
         // Apply Gaussian blur to remove noise
         val filteredMat = Mat()
-        Imgproc.GaussianBlur(inputMat, filteredMat, Size(5.0, 5.0), 0.0)
+        Imgproc.GaussianBlur(grayMat, filteredMat, Size(5.0, 5.0), 0.0)
 
         // Apply adaptive thresholding to separate ridges and valleys
         val thresholdedMat = Mat()
