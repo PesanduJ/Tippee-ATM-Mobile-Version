@@ -16,6 +16,9 @@
         android:theme="@style/Theme.TippeeATMMobileVersion"
         tools:targetApi="31">
         <activity
+            android:name=".Dashboard"
+            android:exported="false" />
+        <activity
             android:name=".ScanActivity"
             android:exported="false" />
         <activity

@@ -2,8 +2,10 @@ package com.example.tippee_atm_mobile_version
 
 import android.content.ContentValues
 import android.content.Context
+import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
+import org.opencv.core.Point
 
 class MinutiaeDatabaseHelper(context: Context) :
     SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {
@@ -54,4 +56,82 @@ class MinutiaeDatabaseHelper(context: Context) :
         cursor.close()
         return minutiaeDataList
     }
+    fun compareFingerprints(minutiaeData: List<Point>): Pair<String, Double>? {
+        val db = readableDatabase
+        val cursor = db.rawQuery("SELECT * FROM $TABLE_NAME", null)
+
+        var bestMatch: Pair<String, Double>? = null
+        val jaccardSimilarity = JaccardSimilarity()
+
+        with(cursor) {
+            while (moveToNext()) {
+                val name = getString(getColumnIndexOrThrow(COLUMN_NAME))
+                val dbMinutiaeData = getString(getColumnIndexOrThrow(COLUMN_MINUTIAE_DATA))
+
+                val dbPoints = parseMinutiaeData(dbMinutiaeData)
+                val similarity = jaccardSimilarity.index(minutiaeData, dbPoints)
+
+                if (bestMatch == null || similarity > bestMatch!!.second) {
+                    bestMatch = Pair(name, similarity)
+                }
+            }
+        }
+        cursor.close()
+
+        return bestMatch
+    }
+
+    fun parseMinutiaeData(minutiaeDataString: String): List<Point> {
+        val points = mutableListOf<Point>()
+        val regex = """\{([0-9]+(\.[0-9]+)?),\s+([0-9]+(\.[0-9]+)?)\}""".toRegex()
+        regex.findAll(minutiaeDataString).forEach {
+            val (x, _, y, _) = it.destructured
+            points.add(Point(x.toDouble(), y.toDouble()))
+        }
+        return points
+    }
+
+    class JaccardSimilarity {
+        fun index(set1: List<Point>, set2: List<Point>): Double {
+            val intersection = set1.intersect(set2).size.toDouble()
+            val union = set1.union(set2).size.toDouble()
+            return intersection / union
+        }
+    }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*fun getAllMinutiaeData(): List<Pair<String, String>> {
+        val db = readableDatabase
+        val cursor = db.rawQuery("SELECT * FROM $TABLE_NAME", null)
+        val minutiaeDataList = mutableListOf<Pair<String, String>>()
+        with(cursor) {
+            while (moveToNext()) {
+                val name = getString(getColumnIndexOrThrow(COLUMN_NAME))
+                val minutiaeData = getString(getColumnIndexOrThrow(COLUMN_MINUTIAE_DATA))
+                minutiaeDataList.add(Pair(name, minutiaeData))
+            }
+        }
+        cursor.close()
+        return minutiaeDataList
+    }*/
