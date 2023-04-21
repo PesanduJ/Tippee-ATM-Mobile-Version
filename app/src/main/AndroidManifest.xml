@@ -16,6 +16,15 @@
         android:theme="@style/Theme.TippeeATMMobileVersion"
         tools:targetApi="31">
         <activity
+            android:name=".Withdraw"
+            android:exported="false" />
+        <activity
+            android:name=".Balance"
+            android:exported="false" />
+        <activity
+            android:name=".Deposit"
+            android:exported="false" />
+        <activity
             android:name=".Transfer"
             android:exported="false" />
         <activity

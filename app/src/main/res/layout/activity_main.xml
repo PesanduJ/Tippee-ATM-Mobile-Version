@@ -14,31 +14,19 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical">
-
-
-        <Button
-            android:id="@+id/fingerprint_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Scan Fingerprint"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.773" />
+        android:orientation="vertical"
+        android:background="#00A664">
 
         <TextView
-            android:id="@+id/result_text_view"
-            android:layout_width="305dp"
-            android:layout_height="171dp"
-            android:text="Scaned fingerprint in binary"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.495"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.043" />
+            android:id="@+id/txtRegisterFingerprints"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Register Users"
+            android:textSize="30dp"
+            android:textColor="@color/white"
+            android:textStyle="bold"
+            android:layout_marginTop="20dp"
+            android:textAlignment="center"/>
 
         <ImageView
             android:id="@+id/fingerprint_image_view"
@@ -49,59 +37,100 @@
             android:layout_marginBottom="50dp"
             android:src="@drawable/baseline_fingerprint_24" />
 
-        <TextView
-            android:id="@+id/minutiae_text_view"
-            android:layout_width="383dp"
-            android:layout_height="511dp"
-            android:text="Extracted Minutiae"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.495"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.043" />
+        <Button
+            android:id="@+id/fingerprint_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Scan Fingerprint"
+            android:layout_gravity="center"
+            app:shapeAppearanceOverlay="@style/RoundedSquare"
+            android:backgroundTint="#FFD700"
+            android:textColor="@color/black"
+            android:textSize="20dp"/>
+
 
         <EditText
-            android:id="@+id/nameregister"
+            android:id="@+id/idnumber"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:inputType="number"
+            android:hint="Enter ID"
+            android:layout_marginTop="30dp"/>
+
+        <EditText
+            android:id="@+id/name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ems="10"
             android:inputType="text"
             android:hint="Enter Name"
+            android:layout_marginTop="30dp"/>
+
+        <EditText
+            android:id="@+id/amount"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:hint="Enter Deposit Amount"
             android:layout_marginTop="30dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"/>
+            android:inputType="number"/>
 
         <Button
-            android:id="@+id/register_fingerprint_button"
+            android:id="@+id/registerUser"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Register Fingerprint"
+            android:text="Register User"
             android:layout_marginTop="30dp"
-            android:layout_marginBottom="50dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.773" />
+            app:shapeAppearanceOverlay="@style/RoundedSquare"
+            android:backgroundTint="#FFD700"
+            android:textColor="@color/black"
+            android:layout_marginLeft="10dp"
+            android:textSize="20dp"/>
+
+        <Button
+            android:id="@+id/close"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Close"
+            android:layout_marginTop="10dp"
+            app:shapeAppearanceOverlay="@style/RoundedSquare"
+            android:backgroundTint="#323231"
+            android:textColor="@color/white"
+            android:layout_marginLeft="10dp"
+            android:textSize="20dp" />
 
         <Button
             android:id="@+id/nextpage"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Next >"
-            android:layout_marginTop="30dp"
-            android:layout_marginBottom="50dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.773" />
+            android:layout_marginTop="10dp"
+            app:shapeAppearanceOverlay="@style/RoundedSquare"
+            android:backgroundTint="#323231"
+            android:textColor="@color/white"
+            android:layout_marginLeft="10dp"
+            android:textSize="20dp"
+            android:visibility="invisible"/>
 
+
+
+        <TextView
+            android:id="@+id/result_text_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Scanned fingerprint in binary"
+            android:visibility="invisible"/>
+
+        <TextView
+            android:id="@+id/minutiae_text_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Extracted Minutiae"
+            android:visibility="invisible"/>
 
     </LinearLayout>
 
     </ScrollView>
+
 </LinearLayout>

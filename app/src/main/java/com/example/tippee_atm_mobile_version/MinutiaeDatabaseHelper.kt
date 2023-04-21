@@ -16,7 +16,10 @@ class MinutiaeDatabaseHelper(context: Context) :
 
         const val TABLE_NAME = "minutiae"
         const val COLUMN_ID = "id"
+        const val COLUMN_ACCOUNT = "accountno"
         const val COLUMN_NAME = "name"
+        const val COLUMN_AMOUNT = "amount"
+        const val COLUMN_LAST_TRANSACTION = "lasttransaction"
         const val COLUMN_MINUTIAE_DATA = "minutiae_data"
     }
 
@@ -24,7 +27,10 @@ class MinutiaeDatabaseHelper(context: Context) :
         db?.execSQL(
             "CREATE TABLE $TABLE_NAME (" +
                     "$COLUMN_ID INTEGER PRIMARY KEY AUTOINCREMENT," +
+                    "$COLUMN_ACCOUNT INTEGER," +
                     "$COLUMN_NAME TEXT," +
+                    "$COLUMN_AMOUNT INTEGER," +
+                    "$COLUMN_LAST_TRANSACTION INTEGER," +
                     "$COLUMN_MINUTIAE_DATA TEXT)"
         )
     }
@@ -34,10 +40,13 @@ class MinutiaeDatabaseHelper(context: Context) :
         onCreate(db)
     }
 
-    fun insertMinutiaeData(name: String, minutiaeData: String): Long {
+    fun insertMinutiaeData(id: String, name: String, amount: Int, lastTransaction: Int, minutiaeData: String): Long {
         val db = writableDatabase
         val values = ContentValues()
+        values.put(COLUMN_ACCOUNT, id)
         values.put(COLUMN_NAME, name)
+        values.put(COLUMN_AMOUNT, amount)
+        values.put(COLUMN_LAST_TRANSACTION, lastTransaction)
         values.put(COLUMN_MINUTIAE_DATA, minutiaeData)
         return db.insert(TABLE_NAME, null, values)
     }
@@ -48,7 +57,7 @@ class MinutiaeDatabaseHelper(context: Context) :
         val minutiaeDataList = mutableListOf<Pair<String, String>>()
         with(cursor) {
             while (moveToNext()) {
-                val name = getString(getColumnIndexOrThrow(COLUMN_NAME))
+                val name = getString(getColumnIndexOrThrow(COLUMN_ACCOUNT))
                 val minutiaeData = getString(getColumnIndexOrThrow(COLUMN_MINUTIAE_DATA))
                 minutiaeDataList.add(Pair(name, minutiaeData))
             }
@@ -65,7 +74,7 @@ class MinutiaeDatabaseHelper(context: Context) :
 
         with(cursor) {
             while (moveToNext()) {
-                val name = getString(getColumnIndexOrThrow(COLUMN_NAME))
+                val name = getString(getColumnIndexOrThrow(COLUMN_ACCOUNT))
                 val dbMinutiaeData = getString(getColumnIndexOrThrow(COLUMN_MINUTIAE_DATA))
 
                 val dbPoints = parseMinutiaeData(dbMinutiaeData)

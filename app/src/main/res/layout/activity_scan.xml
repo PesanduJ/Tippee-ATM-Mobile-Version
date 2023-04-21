@@ -4,7 +4,31 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ScanActivity">
+    android:orientation="vertical"
+    tools:context=".ScanActivity"
+    android:background="#00A664">
+
+
+
+    <ImageView
+        android:id="@+id/fingerprint_image_view"
+        android:layout_width="174dp"
+        android:layout_height="174dp"
+        android:layout_gravity="center"
+        android:layout_marginTop="50dp"
+        android:layout_marginBottom="50dp"
+        android:src="@drawable/baseline_fingerprint_24" />
+
+    <Button
+        android:id="@+id/fingerprint_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Scan Fingerprint"
+        android:layout_gravity="center"
+        app:shapeAppearanceOverlay="@style/RoundedSquare"
+        android:backgroundTint="#FFD700"
+        android:textColor="@color/black"
+        android:textSize="20dp"/>
 
     <TextView
         android:id="@+id/textView"
@@ -12,5 +36,6 @@
         android:layout_height="659dp"
         android:text="TextView"
         tools:layout_editor_absoluteX="19dp"
-        tools:layout_editor_absoluteY="22dp" />
+        tools:layout_editor_absoluteY="22dp"
+        android:visibility="invisible"/>
 </LinearLayout>

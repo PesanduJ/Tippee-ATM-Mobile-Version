@@ -43,6 +43,12 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var nextpage: Button
 
+
+    private lateinit var id:EditText
+    private lateinit var userName:EditText
+    private lateinit var amount:EditText
+    private lateinit var registerUser:Button
+
     var scannedMinutiaeValue = mutableListOf<Point>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -55,9 +61,13 @@ class MainActivity : AppCompatActivity() {
         resultText = findViewById(R.id.result_text_view)
         fingerprintImageView = findViewById(R.id.fingerprint_image_view)
         minutiaeText = findViewById(R.id.minutiae_text_view)
-        registerfingerprintButton = findViewById(R.id.register_fingerprint_button)
-        name = findViewById(R.id.nameregister)
         nextpage = findViewById(R.id.nextpage)
+
+
+        id = findViewById(R.id.idnumber)
+        userName = findViewById(R.id.name)
+        amount = findViewById(R.id.amount)
+        registerUser = findViewById(R.id.registerUser)
 
 
 
@@ -87,13 +97,6 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-
-        registerfingerprintButton.setOnClickListener {
-
-            val dbHelper = MinutiaeDatabaseHelper(this)
-            dbHelper.insertMinutiaeData(name.text.toString(),minutiaeText.text.toString())
-        }
-
         nextpage.setOnClickListener {
 
             val serializablePoints = scannedMinutiaeValue.map { SerializablePoint(it.x, it.y) }
@@ -106,6 +109,17 @@ class MainActivity : AppCompatActivity() {
             val intent = Intent(this, ScanActivity::class.java)
             intent.putExtra("pointsByteArray", byteArray)
             startActivity(intent)
+        }
+
+        registerUser.setOnClickListener {
+
+            var id : String = id.text.toString()
+            var userName : String = userName.text.toString()
+            var amount : Int = amount.text.toString().toInt()
+
+            val dbHelper = MinutiaeDatabaseHelper(this)
+            dbHelper.insertMinutiaeData(id,userName,amount,0,minutiaeText.text.toString())
+
         }
     }
 
