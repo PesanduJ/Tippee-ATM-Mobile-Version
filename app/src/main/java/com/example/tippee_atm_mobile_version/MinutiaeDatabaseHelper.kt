@@ -5,6 +5,8 @@ import android.content.Context
 import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
+import android.util.Log
+import android.widget.Toast
 import org.opencv.core.Point
 
 class MinutiaeDatabaseHelper(context: Context) :
@@ -126,40 +128,111 @@ class MinutiaeDatabaseHelper(context: Context) :
 
         return userData
     }
-}
 
+    fun transferAmount(fromAccount: Int, toAccount: Int, amount: Int): Boolean {
+        val db = writableDatabase
+        val userData = getUserDataByAccountNo(fromAccount)
+        if (userData == null || userData.second.first < amount) {
+            // User account does not exist or insufficient balance
+            return false
+        }
 
+        // Deduct amount from fromAccount
+        val newAmount = userData.second.first - amount
+        val values = ContentValues().apply {
+            put(COLUMN_AMOUNT, newAmount)
+            put(COLUMN_LAST_TRANSACTION, -amount)
+        }
+        val whereClause = "$COLUMN_ACCOUNT = ?"
+        val whereArgs = arrayOf(fromAccount.toString())
+        db.update(TABLE_NAME, values, whereClause, whereArgs)
 
+        // Add amount to toAccount
+        val toUserData = getUserDataByAccountNo(toAccount)
+        if (toUserData == null) {
+            // To account does not exist
+            return false
+        }
+        val toNewAmount = toUserData.second.first + amount
+        val toValues = ContentValues().apply {
+            put(COLUMN_AMOUNT, toNewAmount)
+        }
+        val toWhereClause = "$COLUMN_ACCOUNT = ?"
+        val toWhereArgs = arrayOf(toAccount.toString())
+        db.update(TABLE_NAME, toValues, toWhereClause, toWhereArgs)
 
+        return true
+    }
 
+    fun addAmountByAccountNo(accountNo: Int, amount: Int): Boolean {
+        val db = writableDatabase
+        val userData = getUserDataByAccountNo(accountNo)
 
+        if (userData == null) {
+            // User account does not exist
+            return false
+        }
 
+        val newAmount = userData.second.first + amount
+        val values = ContentValues().apply {
+            put(COLUMN_AMOUNT, newAmount)
+            put(COLUMN_LAST_TRANSACTION, amount)
+        }
 
+        val selection = "$COLUMN_ACCOUNT = ?"
+        val selectionArgs = arrayOf(accountNo.toString())
 
+        db.update(TABLE_NAME, values, selection, selectionArgs)
 
+        return true
+    }
 
-
-
-
-
-
-
-
-
-
-
-
-/*fun getAllMinutiaeData(): List<Pair<String, String>> {
+    fun getAllUserDataByAccountNo(accountNo: Int): Triple<Int, String, Pair<Int, Int>>? {
         val db = readableDatabase
-        val cursor = db.rawQuery("SELECT * FROM $TABLE_NAME", null)
-        val minutiaeDataList = mutableListOf<Pair<String, String>>()
+        val cursor = db.rawQuery("SELECT $COLUMN_ACCOUNT, $COLUMN_NAME, $COLUMN_AMOUNT, $COLUMN_LAST_TRANSACTION FROM $TABLE_NAME WHERE $COLUMN_ACCOUNT = ?", arrayOf(accountNo.toString()))
+
+        var userData: Triple<Int, String, Pair<Int, Int>>? = null
+
         with(cursor) {
-            while (moveToNext()) {
+            if (moveToFirst()) {
+                val account = getInt(getColumnIndexOrThrow(COLUMN_ACCOUNT))
                 val name = getString(getColumnIndexOrThrow(COLUMN_NAME))
-                val minutiaeData = getString(getColumnIndexOrThrow(COLUMN_MINUTIAE_DATA))
-                minutiaeDataList.add(Pair(name, minutiaeData))
+                val amount = getInt(getColumnIndexOrThrow(COLUMN_AMOUNT))
+                val lastTransaction = getInt(getColumnIndexOrThrow(COLUMN_LAST_TRANSACTION))
+                userData = Triple(account, name, Pair(amount, lastTransaction))
             }
         }
         cursor.close()
-        return minutiaeDataList
-    }*/
+
+        return userData
+    }
+
+    fun deductAmountByAccountNo(accountNo: Int, amount: Int): Boolean {
+        val db = writableDatabase
+        val userData = getUserDataByAccountNo(accountNo)
+
+        if (userData == null) {
+            // User account does not exist
+            return false
+        }
+
+        val currentAmount = userData.second.first
+        if (currentAmount < amount) {
+            // User does not have enough funds to deduct the amount
+            return false
+        }
+
+        val newAmount = currentAmount - amount
+        val values = ContentValues().apply {
+            put(COLUMN_AMOUNT, newAmount)
+            put(COLUMN_LAST_TRANSACTION, -amount) // Negative amount to represent a deduction
+        }
+
+        val selection = "$COLUMN_ACCOUNT = ?"
+        val selectionArgs = arrayOf(accountNo.toString())
+
+        db.update(TABLE_NAME, values, selection, selectionArgs)
+
+        return true
+    }
+}

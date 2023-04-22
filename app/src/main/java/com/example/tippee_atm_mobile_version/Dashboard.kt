@@ -11,11 +11,11 @@ class Dashboard : AppCompatActivity() {
     private lateinit var welcome: TextView
     private lateinit var lastWithdrawalAmount : Button
     private lateinit var transfer : Button
-    private lateinit var settings : Button
     private lateinit var deposit : Button
     private lateinit var balance : Button
     private lateinit var withdraw : Button
     private lateinit var exit : Button
+    private lateinit var tipppeeATM: TextView
 
 
 
@@ -26,11 +26,11 @@ class Dashboard : AppCompatActivity() {
         welcome = findViewById(R.id.welcome)
         lastWithdrawalAmount = findViewById(R.id.lastWithdrawalAmount)
         transfer = findViewById(R.id.transfer)
-        settings = findViewById(R.id.settings)
         deposit = findViewById(R.id.deposit)
         balance = findViewById(R.id.balance)
         withdraw = findViewById(R.id.withdraw)
         exit = findViewById(R.id.exit)
+        tipppeeATM = findViewById(R.id.tipppeeATM)
 
         //Date & Time
         var time = findViewById<TextView>(R.id.time)
@@ -63,10 +63,6 @@ class Dashboard : AppCompatActivity() {
             startActivity(myintent)
         }
 
-        settings.setOnClickListener {
-
-        }
-
         deposit.setOnClickListener {
             var myintent = Intent(applicationContext, Deposit::class.java)
             myintent.putExtra("UserAccountNumber",userAccountNumber)
@@ -86,7 +82,14 @@ class Dashboard : AppCompatActivity() {
         }
 
         exit.setOnClickListener {
-
+            finish()
         }
+
+        tipppeeATM.setOnClickListener {
+            var myintent = Intent(applicationContext, MainActivity::class.java)
+            startActivity(myintent)
+        }
+
+
     }
 }

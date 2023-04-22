@@ -8,7 +8,13 @@
     tools:context=".ScanActivity"
     android:background="#00A664">
 
-
+    <ImageView
+        android:id="@+id/tippe"
+        android:layout_width="match_parent"
+        android:layout_height="174dp"
+        android:layout_gravity="center"
+        android:layout_marginTop="40dp"
+        android:src="@drawable/tippee" />
 
     <ImageView
         android:id="@+id/fingerprintScan_image_view"
@@ -32,8 +38,8 @@
 
     <TextView
         android:id="@+id/textViewScan"
-        android:layout_width="293dp"
-        android:layout_height="659dp"
+        android:layout_width="match_parent"
+        android:layout_height="10dp"
         android:text="TextView"
         tools:layout_editor_absoluteX="19dp"
         tools:layout_editor_absoluteY="22dp"

@@ -41,7 +41,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var registerfingerprintButton: Button
     private lateinit var name: EditText
 
-    private lateinit var nextpage: Button
+    private lateinit var close: Button
 
 
     private lateinit var id:EditText
@@ -61,7 +61,7 @@ class MainActivity : AppCompatActivity() {
         resultText = findViewById(R.id.result_text_view)
         fingerprintImageView = findViewById(R.id.fingerprint_image_view)
         minutiaeText = findViewById(R.id.minutiae_text_view)
-        nextpage = findViewById(R.id.nextpage)
+        close = findViewById(R.id.close)
 
 
         id = findViewById(R.id.idnumber)
@@ -97,18 +97,9 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        nextpage.setOnClickListener {
-
-            val serializablePoints = scannedMinutiaeValue.map { SerializablePoint(it.x, it.y) }
-
-            val byteArrayOutputStream = ByteArrayOutputStream()
-            val objectOutputStream = ObjectOutputStream(byteArrayOutputStream)
-            objectOutputStream.writeObject(serializablePoints)
-            val byteArray = byteArrayOutputStream.toByteArray()
-
-            val intent = Intent(this, ScanActivity::class.java)
-            intent.putExtra("pointsByteArray", byteArray)
-            startActivity(intent)
+        close.setOnClickListener {
+            var myintent = Intent(applicationContext, ScanActivity::class.java)
+            startActivity(myintent)
         }
 
         registerUser.setOnClickListener {
