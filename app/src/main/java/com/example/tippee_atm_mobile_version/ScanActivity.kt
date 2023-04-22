@@ -3,16 +3,18 @@ package com.example.tippee_atm_mobile_version
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Color
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
+import android.util.Log
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
+import org.opencv.android.OpenCVLoader
 import org.opencv.android.Utils
 import org.opencv.core.Core
 import org.opencv.core.CvType
@@ -23,8 +25,6 @@ import org.opencv.core.Scalar
 import org.opencv.core.Size
 import org.opencv.imgcodecs.Imgcodecs
 import org.opencv.imgproc.Imgproc
-import java.io.ByteArrayInputStream
-import java.io.ObjectInputStream
 import javax.crypto.Cipher
 import javax.crypto.KeyGenerator
 
@@ -39,7 +39,12 @@ class ScanActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_scan)
 
-        fingerprintButton = findViewById(R.id.fingerprint_button)
+        Log.d("OPENCV","OpenCv Loading Status ${OpenCVLoader.initDebug()}")
+
+        resultText = findViewById(R.id.textViewScan)
+        fingerprintImageView = findViewById(R.id.fingerprintScan_image_view)
+        fingerprintButton = findViewById(R.id.fingerprintScan_button)
+
 
         fingerprintButton.setOnClickListener {
             val biometricManager = BiometricManager.from(this)
@@ -50,22 +55,17 @@ class ScanActivity : AppCompatActivity() {
                 }
                 BiometricManager.BIOMETRIC_ERROR_NO_HARDWARE -> {
                     // No biometric features available on this device
-                    resultText.text=""
-                    resultText.text="No biometric features available on this device"
-
                 }
                 BiometricManager.BIOMETRIC_ERROR_HW_UNAVAILABLE -> {
                     // Biometric features are currently unavailable
-                    resultText.text=""
-                    resultText.text="Biometric features are currently unavailable"
                 }
                 BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED -> {
                     // The user hasn't associated any biometric credentials with their account
-                    resultText.text=""
-                    resultText.text="The user hasn't associated any biometric credentials with their account"
                 }
             }
         }
+
+
     }
 
     private fun startBiometricAuthentication() {
@@ -117,23 +117,25 @@ class ScanActivity : AppCompatActivity() {
 
                         fingerprintImageView.setImageBitmap(segmentedBitmap)
 
-                        val dbHelper = MinutiaeDatabaseHelper(applicationContext)
-                        val minutiaeDataList = dbHelper.getAllMinutiaeData()
+                        if(extractedMinutiae != null){
+                            val dbHelper = MinutiaeDatabaseHelper(applicationContext)
+                            val minutiaeDataList = dbHelper.getAllMinutiaeData()
 
-                        val minutiaeData =  extractedMinutiae// obtain minutiae data from fingerprint scanner
-                        val bestMatch = minutiaeData?.let { dbHelper.compareFingerprints(it) }
+                            val minutiaeData = extractedMinutiae // obtain minutiae data from fingerprint scanner
+                            val bestMatch = minutiaeData?.let { dbHelper.compareFingerprints(it) }
 
-                        if (bestMatch != null && bestMatch.second > 0.67) {
-                            //Toast.makeText(applicationContext, "Match found: ${bestMatch.first}", Toast.LENGTH_SHORT).show()
-
-                            var myintent = Intent(applicationContext, Dashboard::class.java)
-                            myintent.putExtra("AccountNo",bestMatch.first)
-                            startActivity(myintent)
-
-                        } else {
+                            if (bestMatch != null && bestMatch.second > 0.67) {
+                                //Toast.makeText(applicationContext, "Match found: ${bestMatch.first}", Toast.LENGTH_SHORT).show()
+                                var myintent = Intent(applicationContext, Dashboard::class.java)
+                                myintent.putExtra("UserAccountNumber",bestMatch.first)
+                                startActivity(myintent)
+                            } else {
+                                Toast.makeText(applicationContext, "Please place your finger again!", Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                        else{
                             Toast.makeText(applicationContext, "Please place your finger again!", Toast.LENGTH_SHORT).show()
                         }
-
                     }
                 }
 
@@ -237,7 +239,6 @@ class ScanActivity : AppCompatActivity() {
 
         return segmentedFingerprint
     }
-
     fun extractMinutiae(segmentedImage: Mat): List<Point> {
         val minutiae = mutableListOf<Point>()
         val cnImage = Mat(segmentedImage.rows(), segmentedImage.cols(), CvType.CV_8UC1, Scalar(0.0))

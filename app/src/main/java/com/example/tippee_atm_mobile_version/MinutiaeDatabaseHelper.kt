@@ -107,6 +107,25 @@ class MinutiaeDatabaseHelper(context: Context) :
             return intersection / union
         }
     }
+
+    fun getUserDataByAccountNo(accountNo: Int): Pair<String, Pair<Int, Int>>? {
+        val db = readableDatabase
+        val cursor = db.rawQuery("SELECT $COLUMN_NAME, $COLUMN_AMOUNT, $COLUMN_LAST_TRANSACTION FROM $TABLE_NAME WHERE $COLUMN_ACCOUNT = ?", arrayOf(accountNo.toString()))
+
+        var userData: Pair<String, Pair<Int, Int>>? = null
+
+        with(cursor) {
+            if (moveToFirst()) {
+                val name = getString(getColumnIndexOrThrow(COLUMN_NAME))
+                val amount = getInt(getColumnIndexOrThrow(COLUMN_AMOUNT))
+                val lastTransaction = getInt(getColumnIndexOrThrow(COLUMN_LAST_TRANSACTION))
+                userData = Pair(name, Pair(amount, lastTransaction))
+            }
+        }
+        cursor.close()
+
+        return userData
+    }
 }
 
 
